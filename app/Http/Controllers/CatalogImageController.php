@@ -4,9 +4,8 @@ namespace App\Http\Controllers;
 
 use App\CatalogImage;
 use App\Http\Requests\CreateImageRequest;
+use App\Http\Requests\EditImageRequest;
 use Illuminate\Http\Request;
-
-use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Session;
 use Intervention\Image\Facades\Image;
@@ -18,9 +17,9 @@ class CatalogImageController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $images = CatalogImage::orderBy('id','DESC')->paginate(5);
+        $images = CatalogImage::filterAndPaginate($request->get('search'));
         return view('catalog.index',compact('images'));
     }
 
@@ -63,8 +62,26 @@ class CatalogImageController extends Controller
 
 
         $image->save();
+
         $file = $request->file('image_file');
         $imageFile = Image::make($file->getRealPath());
+
+        // cambio orientacion segun Exif propiedad "Orientation"
+        $data = $imageFile->exif();
+        if(isset($data['Orientation'])) {
+            $orientation = $data['Orientation'];
+            switch ($orientation) {
+                case 3:
+                    $imageFile = $imageFile->rotate(180);
+                    break;
+                case 6:
+                    $imageFile = $imageFile->rotate(-90);
+                    break;
+                case 8:
+                    $imageFile = $imageFile->rotate(90);
+                    break;
+            }
+        }
 
         $w = $imageFile->width();
         $h = $imageFile->height();
@@ -84,7 +101,8 @@ class CatalogImageController extends Controller
         }
 
         $imageFile->save(public_path().$image_path.$image_name)
-                ->resize(60,60)
+                ->orientate()
+                ->resize(150,150)
                 ->save(public_path().$image_thumbnail_path.$image_thumbnail);
 
         Session::flash('message','Nuova Immagine Caricata!');
@@ -111,7 +129,8 @@ class CatalogImageController extends Controller
      */
     public function edit($id)
     {
-        //
+        $image = CatalogImage::findOrFail($id);
+        return view('catalog.edit', compact('image'));
     }
 
     /**
@@ -121,9 +140,14 @@ class CatalogImageController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(EditImageRequest $request, $id)
     {
-        //
+        $image = CatalogImage::findOrFail($id);
+        $image->fill($request->all());
+        $image->save();
+        Session::flash('message','Item Aggiornato!');
+        Session::flash('flash_type','alert-success');
+        return redirect()->route('catalogo.index');
     }
 
     /**
@@ -134,6 +158,24 @@ class CatalogImageController extends Controller
      */
     public function destroy($id)
     {
-        //
+
+
+        $image = CatalogImage::findOrFail($id);
+        $image->delete();
+
+        // borrar archivos
+        // image_path : /catalog/images/
+        // image_name : 1459789529.png
+
+        // image_thumbnail_path: /catalog/thumbnails/
+        // image_thumbnail: thumb-1459789529.png
+        //dd('public' . $image->image_path . $image->image_name);
+        @unlink(public_path() . $image->image_path . $image->image_name);
+        @unlink(public_path() .$image->image_thumbnail_path . $image->image_thumbnail);
+
+        Session::flash('message', 'Item CANCELLATO!');
+        Session::flash('flash_type','alert-success');
+
+        return redirect()->route('catalogo.index');
     }
 }

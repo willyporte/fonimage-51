@@ -21,4 +21,24 @@ class CatalogImage extends Model
             'quantity',
             'price'
         ];
+
+    public static function filterAndPaginate($search)
+    {
+        return CatalogImage::description($search)
+            ->orderBy('id','DESC')->paginate(5);
+    }
+
+    public function scopeDescription($query, $search) {
+        if(trim($search) != '') {
+            return $query
+                ->where('image_description','LIKE',"%$search%");
+        }
+    }
+
+    public static function filterAndPaginateUnorder($search)
+    {
+        return CatalogImage::description($search)
+            ->orderByRaw('RAND()')->paginate(5);
+    }
+
 }

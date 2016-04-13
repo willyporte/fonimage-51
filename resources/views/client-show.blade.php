@@ -1,4 +1,4 @@
-@extends('layouts.master')
+@extends('layouts.frontend')
 
 @section('content')
     <div class="container">
@@ -16,13 +16,11 @@
                             <img class="img-responsive" src="{{ $image->image_path.$image->image_name }}" style="border: solid 1px #CCC">
                         </div>
                         <p class="text-center">
-                            <a href="{{ route('catalogo.edit', $image->id) }}" title="Modifica Item">
-                                <i class="fa fa-pencil"></i>
-                            </a>
-                            {!! nl2br($image->image_description) !!}</p>
+                            {!! nl2br($image->image_description) !!}
+                        </p>
 
                     </div>
+                </div>
             </div>
         </div>
-    </div>
 @endsection

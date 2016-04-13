@@ -25,6 +25,7 @@
 
                         <div class="form-group">
                             {!! Form::radio('is_active', '1', true) !!} <strong>Visibile</strong>
+                            {!! Form::radio('is_active', '0') !!} <strong>Nascosta</strong>
                         </div>
 
                         <div class="form-group">

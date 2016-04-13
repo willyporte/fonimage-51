@@ -42,40 +42,20 @@
         </div>
 
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-            <ul class="nav navbar-nav">
-                <li><a href="/">Home</a></li>
-                @if (Auth::check())
-                    <li><a href="{{ url('account') }}">Account</a></li>
-                @endif
-            </ul>
 
             <ul class="nav navbar-nav">
-
-                @if (Auth::guest())
-                    <li><a href="{{ route('catalogo.index') }}">Catalogo</a></li>
-                    <li><a href="{{ route('catalogo.create') }}">Nuovo Item</a></li>
+                @if(isset($images))
+                    {!! Form::model(Request::only(['search']),['route' => 'gallery', 'method' => 'GET', 'class' => 'navbar-form navbar-left', 'role' => 'form']) !!}
+                    <div class="form-group">
+                        {!! Form::text('search',null,['class' => 'form-control', 'placeholder' => 'Descrizione ...']) !!}
+                    </div>
+                    <button type="submit" class="btn btn-default">
+                        <span class="glyphicon glyphicon-search"></span>
+                    </button>
+                    {!! Form::close() !!}
                 @else
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-                            {{ Auth::user()->name }} <span class="caret"></span>
-                        </a>
-                        <ul class="dropdown-menu" role="menu">
-                            <li><a href="{{ route('logout') }}">Logout</a></li>
-                        </ul>
-                    </li>
+                    <li><a href="{{ route('gallery') }}">Catalogo</a></li>
                 @endif
-
-                    @if(isset($images))
-                        {!! Form::model(Request::only(['search']),['route' => 'catalogo.index', 'method' => 'GET', 'class' => 'navbar-form navbar-left', 'role' => 'form']) !!}
-                        <div class="form-group">
-                            {!! Form::text('search',null,['class' => 'form-control', 'placeholder' => 'Descrizione ...']) !!}
-                        </div>
-                        <button type="submit" class="btn btn-default">
-                            <span class="glyphicon glyphicon-search"></span>
-                        </button>
-                        {!! Form::close() !!}
-                    @endif
-
             </ul>
         </div>
     </div>

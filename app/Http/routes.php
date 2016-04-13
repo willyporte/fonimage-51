@@ -1,18 +1,14 @@
 <?php
 
-/*
-|--------------------------------------------------------------------------
-| Application Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register all of the routes for an application.
-| It's a breeze. Simply tell Laravel the URIs it should respond to
-| and give it the controller to call when that URI is requested.
-|
-*/
+
+Route::get('/', [
+    'as' => 'gallery',
+    'uses' => 'GalleryController@index'
+]);
+
+Route::get('show/{id}', [
+    'as' => 'show',
+    'uses' => 'GalleryController@show'
+]);
 
 Route::resource('catalogo','CatalogImageController');
-
-Route::get('/', function () {
-    return view('welcome');
-});
